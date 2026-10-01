@@ -172,7 +172,174 @@ const ViewEmployee = () => {
         </div>
       </div>
 
-      {/* Rest of the file remains the same... */}
+      {/* Details Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Personal Information */}
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-primary-100 rounded-lg">
+              <User size={24} className="text-primary-800" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800">Personal Information</h3>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-gray-500">Full Name</p>
+              <p className="font-medium text-gray-800">
+                {employee.firstName} {employee.middleName && `${employee.middleName} `}{employee.lastName}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Gender</p>
+              <p className="font-medium text-gray-800">{employee.gender}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Birth Date</p>
+              <p className="font-medium text-gray-800">{formatDate(employee.birthDate)}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Age</p>
+              <p className="font-medium text-gray-800">{calculateAge(employee.birthDate)} years old</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Civil Status</p>
+              <p className="font-medium text-gray-800">{employee.civilStatus}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Contact Information */}
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-green-100 rounded-lg">
+              <Phone size={24} className="text-green-800" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800">Contact Information</h3>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-gray-500">Email Address</p>
+              <a href={`mailto:${employee.email}`} className="font-medium text-primary-800 hover:underline">
+                {employee.email}
+              </a>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Contact Number</p>
+              <a href={`tel:${employee.contactNumber}`} className="font-medium text-primary-800 hover:underline">
+                {employee.contactNumber}
+              </a>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Address</p>
+              <p className="font-medium text-gray-800">{employee.address}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Employment Information */}
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-blue-100 rounded-lg">
+              <Briefcase size={24} className="text-blue-800" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800">Employment Information</h3>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-gray-500">Employee ID</p>
+              <p className="font-medium text-gray-800">{employee.employeeId}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Department</p>
+              <p className="font-medium text-gray-800">{employee.department}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Position</p>
+              <p className="font-medium text-gray-800">{employee.position}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Date Hired</p>
+              <p className="font-medium text-gray-800">{formatDate(employee.dateHired)}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Employment Status</p>
+              <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                employee.employmentStatus === 'Regular'
+                  ? 'bg-green-100 text-green-800'
+                  : employee.employmentStatus === 'Probationary'
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : 'bg-blue-100 text-blue-800'
+              }`}>
+                {employee.employmentStatus}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Emergency Contact */}
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-red-100 rounded-lg">
+              <Heart size={24} className="text-red-800" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800">Emergency Contact</h3>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-gray-500">Contact Name</p>
+              <p className="font-medium text-gray-800">{employee.emergencyContact?.name}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Relationship</p>
+              <p className="font-medium text-gray-800">{employee.emergencyContact?.relationship}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Contact Phone</p>
+              <a href={`tel:${employee.emergencyContact?.phone}`} className="font-medium text-primary-800 hover:underline">
+                {employee.emergencyContact?.phone}
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Account Information */}
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-purple-100 rounded-lg">
+              <Calendar size={24} className="text-purple-800" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800">Account Information</h3>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-gray-500">Created At</p>
+              <p className="font-medium text-gray-800">{formatDate(employee.createdAt)}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Last Updated</p>
+              <p className="font-medium text-gray-800">{formatDate(employee.updatedAt)}</p>
+            </div>
+            {employee.isArchived && (
+              <div>
+                <p className="text-sm text-gray-500">Archived At</p>
+                <p className="font-medium text-red-800">{formatDate(employee.archivedAt)}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Confirm Archive Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ isOpen: false, employeeId: null, employeeName: '' })}
+        onConfirm={handleArchive}
+        title="Archive Employee"
+        message={`Are you sure you want to archive ${employee.firstName} ${employee.lastName}? This will move them to archived records.`}
+        confirmText="Archive"
+        cancelText="Cancel"
+        type="warning"
+      />
     </div>
   )
 }
