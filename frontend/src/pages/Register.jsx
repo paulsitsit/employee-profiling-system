@@ -44,8 +44,7 @@ const Register = () => {
       await register(
         formData.name.trim(),
         formData.email.trim(),
-        formData.password,
-        'employee'
+        formData.password
       )
 
       toast.success('Account created successfully!')
@@ -73,6 +72,7 @@ const Register = () => {
             <h1 className="text-2xl font-bold text-gray-800">
               Create Account
             </h1>
+
             <p className="mt-2 text-gray-600">
               Create an employee account for the system
             </p>
@@ -171,9 +171,15 @@ const Register = () => {
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
-                    <EyeOff size={20} className="text-gray-400 hover:text-gray-600" />
+                    <EyeOff
+                      size={20}
+                      className="text-gray-400 hover:text-gray-600"
+                    />
                   ) : (
-                    <Eye size={20} className="text-gray-400 hover:text-gray-600" />
+                    <Eye
+                      size={20}
+                      className="text-gray-400 hover:text-gray-600"
+                    />
                   )}
                 </button>
               </div>
@@ -209,8 +215,8 @@ const Register = () => {
             </div>
 
             <p className="rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-800">
-              New accounts are created as employee accounts. Administrator accounts
-              are created only by the system administrator.
+              New accounts are created as employee accounts. Administrator
+              accounts are created only by the system administrator.
             </p>
 
             {/* Submit */}
