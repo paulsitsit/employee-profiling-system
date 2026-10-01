@@ -1,17 +1,18 @@
-import express from 'express';
+import express from 'express'
 import {
-  register,
   login,
   getProfile,
   updateProfile
-} from '../controllers/authController.js';
-import { protect } from '../middleware/authMiddleware.js';
+} from '../controllers/authController.js'
+import { protect, adminOnly } from '../middleware/authMiddleware.js'
 
-const router = express.Router();
+const router = express.Router()
 
-router.post('/register', register);
-router.post('/login', login);
-router.get('/profile', protect, getProfile);
-router.put('/profile', protect, updateProfile);
+// No public registration endpoint exists.
+router.post('/login', login)
 
-export default router;
+// Profile management is available only to the signed-in admin.
+router.get('/profile', protect, adminOnly, getProfile)
+router.put('/profile', protect, adminOnly, updateProfile)
+
+export default router

@@ -4,7 +4,6 @@ import ProtectedRoute from './components/ProtectedRoute'
 import DashboardLayout from './layouts/DashboardLayout'
 
 import Login from './pages/Login'
-import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Employees from './pages/Employees'
 import AddEmployee from './pages/AddEmployee'
@@ -17,16 +16,13 @@ const AppRoutes = () => {
 
   return (
     <Routes>
+      {/* Only administrators can sign in */}
       <Route
         path="/login"
         element={user ? <Navigate to="/dashboard" replace /> : <Login />}
       />
 
-      <Route
-        path="/register"
-        element={user ? <Navigate to="/dashboard" replace /> : <Register />}
-      />
-
+      {/* Every dashboard route requires an authenticated administrator */}
       <Route
         element={
           <ProtectedRoute>
@@ -43,7 +39,11 @@ const AppRoutes = () => {
         <Route path="/employees/archived" element={<ArchivedEmployees />} />
       </Route>
 
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      {/* Redirect any invalid URL correctly */}
+      <Route
+        path="*"
+        element={<Navigate to={user ? '/dashboard' : '/login'} replace />}
+      />
     </Routes>
   )
 }

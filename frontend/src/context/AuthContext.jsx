@@ -30,14 +30,24 @@ export const AuthProvider = ({ children }) => {
       try {
         const parsedUser = JSON.parse(storedUser)
 
+        // Admin-only system: remove any old employee session.
+        if (parsedUser.role !== 'admin') {
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          delete axios.defaults.headers.common.Authorization
+          setUser(null)
+          return
+        }
+
         setUser(parsedUser)
         axios.defaults.headers.common.Authorization = `Bearer ${token}`
       } catch (error) {
-        console.error('Could not restore saved user session:', error)
+        console.error('Could not restore saved session:', error)
 
         localStorage.removeItem('token')
         localStorage.removeItem('user')
         delete axios.defaults.headers.common.Authorization
+        setUser(null)
       } finally {
         setLoading(false)
       }
@@ -62,18 +72,10 @@ export const AuthProvider = ({ children }) => {
       password
     })
 
-    saveSession(response.data)
-
-    return response.data
-  }
-
-  const register = async (name, email, password) => {
-    // The backend assigns every publicly registered account the employee role.
-    const response = await axios.post('/api/auth/register', {
-      name,
-      email,
-      password
-    })
+    // Extra frontend validation. Backend is the real security enforcement.
+    if (response.data.role !== 'admin') {
+      throw new Error('Access denied. Administrator account required.')
+    }
 
     saveSession(response.data)
 
@@ -88,12 +90,17 @@ export const AuthProvider = ({ children }) => {
   }
 
   const updateUser = (updatedData) => {
-    const currentToken = localStorage.getItem('token')
+    const token = localStorage.getItem('token')
+
+    if (updatedData.role !== 'admin') {
+      logout()
+      return
+    }
 
     localStorage.setItem('user', JSON.stringify(updatedData))
 
-    if (currentToken) {
-      axios.defaults.headers.common.Authorization = `Bearer ${currentToken}`
+    if (token) {
+      axios.defaults.headers.common.Authorization = `Bearer ${token}`
     }
 
     setUser(updatedData)
@@ -103,7 +110,6 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     login,
-    register,
     logout,
     updateUser
   }

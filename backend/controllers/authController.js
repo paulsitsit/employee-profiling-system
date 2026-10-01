@@ -7,63 +7,9 @@ const generateToken = (id) => {
   })
 }
 
-// @desc    Register new employee user
-// @route   POST /api/auth/register
-// @access  Public
-export const register = async (req, res) => {
-  try {
-    const { name, email, password } = req.body
-
-    if (!name?.trim() || !email?.trim() || !password) {
-      return res.status(400).json({
-        message: 'Name, email, and password are required'
-      })
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({
-        message: 'Password must be at least 6 characters'
-      })
-    }
-
-    const normalizedEmail = email.toLowerCase().trim()
-
-    const userExists = await User.findOne({ email: normalizedEmail })
-
-    if (userExists) {
-      return res.status(400).json({
-        message: 'User already exists with this email'
-      })
-    }
-
-    // Public registration ALWAYS creates an employee role.
-    // Never accept an incoming req.body.role here.
-    const user = await User.create({
-      name: name.trim(),
-      email: normalizedEmail,
-      password,
-      role: 'employee'
-    })
-
-    return res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user._id)
-    })
-  } catch (error) {
-    console.error('Register Error:', error)
-
-    return res.status(500).json({
-      message: error.message || 'Server error during registration'
-    })
-  }
-}
-
-// @desc    Login user
+// @desc    Administrator login
 // @route   POST /api/auth/login
-// @access  Public
+// @access  Public, but only admin credentials are accepted
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body
@@ -76,7 +22,9 @@ export const login = async (req, res) => {
 
     const normalizedEmail = email.toLowerCase().trim()
 
-    const user = await User.findOne({ email: normalizedEmail }).select('+password')
+    const user = await User.findOne({
+      email: normalizedEmail
+    }).select('+password')
 
     if (!user) {
       return res.status(401).json({
@@ -89,6 +37,13 @@ export const login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({
         message: 'Invalid email or password'
+      })
+    }
+
+    // Critical restriction: only admin accounts can use the system.
+    if (user.role !== 'admin') {
+      return res.status(403).json({
+        message: 'Access denied. This system is for administrators only.'
       })
     }
 
@@ -108,9 +63,9 @@ export const login = async (req, res) => {
   }
 }
 
-// @desc    Get currently logged-in user
+// @desc    Get current administrator profile
 // @route   GET /api/auth/profile
-// @access  Private
+// @access  Private/Admin
 export const getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id)
@@ -136,9 +91,9 @@ export const getProfile = async (req, res) => {
   }
 }
 
-// @desc    Update currently logged-in user
+// @desc    Update current administrator profile
 // @route   PUT /api/auth/profile
-// @access  Private
+// @access  Private/Admin
 export const updateProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id)
@@ -180,7 +135,7 @@ export const updateProfile = async (req, res) => {
       user.password = req.body.password
     }
 
-    // Intentionally do NOT allow req.body.role to modify roles.
+    // Do not allow a request to change account role.
     const updatedUser = await user.save()
 
     return res.json({

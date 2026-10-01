@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { LogIn, Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { toast } from 'react-toastify'
 
 const Login = () => {
   const navigate = useNavigate()
   const { login } = useAuth()
+
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -14,92 +15,123 @@ const Login = () => {
     password: ''
   })
 
-  const handleChange = (e) => {
+  const handleChange = (event) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [event.target.name]: event.target.value
     })
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = async (event) => {
+    event.preventDefault()
     setLoading(true)
 
     try {
-      await login(formData.email, formData.password)
-      toast.success('Login successful!')
-      navigate('/dashboard')
+      await login(formData.email.trim(), formData.password)
+
+      toast.success('Administrator login successful!')
+      navigate('/dashboard', { replace: true })
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed. Please check your credentials.')
+      toast.error(
+        error.response?.data?.message ||
+          'Login failed. Please check your credentials.'
+      )
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-800 to-primary-900 flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-800 to-primary-900 px-4">
+      <div className="w-full max-w-md">
+        <div className="rounded-2xl bg-white p-8 shadow-2xl">
           {/* Logo */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
-              <LogIn size={32} className="text-primary-800" />
+          <div className="mb-8 text-center">
+            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary-100">
+              <ShieldCheck size={32} className="text-primary-800" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-800">Welcome Back</h1>
-            <p className="text-gray-600 mt-2">Sign in to your account</p>
+
+            <h1 className="text-2xl font-bold text-gray-800">
+              Administrator Login
+            </h1>
+
+            <p className="mt-2 text-gray-600">
+              Sign in with your authorized administrator account
+            </p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Email Address
               </label>
+
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                   <Mail size={20} className="text-gray-400" />
                 </div>
+
                 <input
+                  id="email"
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-800 focus:border-transparent transition-all outline-none"
-                  placeholder="you@company.com"
+                  autoComplete="email"
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-primary-800"
+                  placeholder="admin@company.com"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
+
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                   <Lock size={20} className="text-gray-400" />
                 </div>
+
                 <input
+                  id="password"
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-800 focus:border-transparent transition-all outline-none"
-                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-12 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-primary-800"
+                  placeholder="Enter your password"
                 />
+
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword((value) => !value)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
-                    <EyeOff size={20} className="text-gray-400 hover:text-gray-600" />
+                    <EyeOff
+                      size={20}
+                      className="text-gray-400 hover:text-gray-600"
+                    />
                   ) : (
-                    <Eye size={20} className="text-gray-400 hover:text-gray-600" />
+                    <Eye
+                      size={20}
+                      className="text-gray-400 hover:text-gray-600"
+                    />
                   )}
                 </button>
               </div>
@@ -109,31 +141,29 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary-800 text-white py-3 rounded-lg font-medium hover:bg-primary-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-800 py-3 font-medium text-white transition-colors hover:bg-primary-900 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   Signing in...
                 </>
               ) : (
-                'Sign In'
+                <>
+                  <LogIn size={20} />
+                  Sign In as Administrator
+                </>
               )}
             </button>
           </form>
 
-          {/* Register Link */}
-          <p className="text-center text-gray-600 mt-6">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-primary-800 font-medium hover:underline">
-              Register here
-            </Link>
-          </p>
+          <div className="mt-6 rounded-lg bg-gray-50 px-4 py-3 text-center text-sm text-gray-600">
+            Access is restricted to authorized system administrators.
+          </div>
         </div>
 
-        {/* Footer */}
-        <p className="text-center text-gray-400 text-sm mt-6">
-          © 2026 Employee Profiling System. All rights reserved.
+        <p className="mt-6 text-center text-sm text-gray-300">
+          © 2026 Employee Profiling Management System
         </p>
       </div>
     </div>
