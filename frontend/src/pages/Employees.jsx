@@ -9,7 +9,9 @@ import {
   Archive,
   ChevronLeft,
   ChevronRight,
-  Users
+  Users,
+  ArrowLeft,
+  LayoutDashboard
 } from 'lucide-react'
 import axios from '../utils/axios'
 import { toast } from 'react-toastify'
@@ -50,6 +52,7 @@ const Employees = () => {
 
   const fetchEmployees = async () => {
     setLoading(true)
+
     try {
       const params = new URLSearchParams({
         page: currentPage,
@@ -58,21 +61,22 @@ const Employees = () => {
         department,
         isArchived: 'false'
       })
+
       const response = await axios.get(`/api/employees?${params}`)
+
       setEmployees(response.data.employees)
       setTotalPages(response.data.totalPages)
       setTotal(response.data.total)
     } catch (error) {
-      toast.error('Failed to load employees')
+      toast.error(error.response?.data?.message || 'Failed to load employees')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSearch = (e) => {
-    e.preventDefault()
+  const handleSearch = (event) => {
+    event.preventDefault()
     setCurrentPage(1)
-    fetchEmployees()
   }
 
   const handleArchive = async () => {
@@ -81,9 +85,14 @@ const Employees = () => {
       toast.success('Employee archived successfully')
       fetchEmployees()
     } catch (error) {
-      toast.error('Failed to archive employee')
+      toast.error(error.response?.data?.message || 'Failed to archive employee')
+    } finally {
+      setConfirmDialog({
+        isOpen: false,
+        employeeId: null,
+        employeeName: ''
+      })
     }
-    setConfirmDialog({ isOpen: false, employeeId: null, employeeName: '' })
   }
 
   const openArchiveDialog = (employee) => {
@@ -95,6 +104,8 @@ const Employees = () => {
   }
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'N/A'
+
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -104,50 +115,94 @@ const Employees = () => {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Employees</h1>
-          <p className="text-gray-600 mt-1">Manage your employee records</p>
-        </div>
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 text-sm text-gray-500">
         <Link
-          to="/employees/add"
-          className="bg-primary-800 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-900 transition-colors flex items-center gap-2"
+          to="/dashboard"
+          className="inline-flex items-center gap-1 hover:text-primary-800 transition-colors"
         >
-          <UserPlus size={20} />
-          Add Employee
+          <LayoutDashboard size={16} />
+          Dashboard
         </Link>
+        <span>/</span>
+        <span className="font-medium text-gray-700">Employees</span>
+      </div>
+
+      {/* Page Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <Link
+            to="/dashboard"
+            title="Back to Dashboard"
+            className="mt-1 inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white p-2 text-gray-600 shadow-sm transition-colors hover:bg-gray-100 hover:text-primary-800"
+          >
+            <ArrowLeft size={20} />
+          </Link>
+
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Employees</h1>
+            <p className="mt-1 text-gray-600">Manage your employee records</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary-200 bg-white px-5 py-3 font-medium text-primary-800 transition-colors hover:bg-primary-50"
+          >
+            <LayoutDashboard size={20} />
+            Dashboard
+          </Link>
+
+          <Link
+            to="/employees/add"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary-800 px-5 py-3 font-medium text-white transition-colors hover:bg-primary-900"
+          >
+            <UserPlus size={20} />
+            Add Employee
+          </Link>
+        </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+      <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+        <form onSubmit={handleSearch} className="flex flex-col gap-4 md:flex-row">
+          <div className="relative flex-1">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              size={20}
+            />
             <input
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(event) => {
+                setSearch(event.target.value)
+                setCurrentPage(1)
+              }}
               placeholder="Search by name, ID, email, department, or position..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-800 focus:border-transparent outline-none"
+              className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-primary-800"
             />
           </div>
+
           <select
             value={department}
-            onChange={(e) => {
-              setDepartment(e.target.value)
+            onChange={(event) => {
+              setDepartment(event.target.value)
               setCurrentPage(1)
             }}
-            className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-800 focus:border-transparent outline-none bg-white min-w-[200px]"
+            className="min-w-[200px] rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-primary-800"
           >
             <option value="">All Departments</option>
-            {departments.map((dept) => (
-              <option key={dept} value={dept}>{dept}</option>
+            {departments.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
             ))}
           </select>
+
           <button
             type="submit"
-            className="bg-primary-800 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-900 transition-colors flex items-center gap-2"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary-800 px-6 py-3 font-medium text-white transition-colors hover:bg-primary-900"
           >
             <Filter size={20} />
             Filter
@@ -156,10 +211,10 @@ const Employees = () => {
       </div>
 
       {/* Employees Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+      <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-gray-100 p-6">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-primary-100 rounded-lg">
+            <div className="rounded-lg bg-primary-100 p-3">
               <Users size={24} className="text-primary-800" />
             </div>
             <div>
@@ -170,8 +225,8 @@ const Employees = () => {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-800 rounded-full animate-spin"></div>
+          <div className="flex h-64 items-center justify-center">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary-200 border-t-primary-800" />
           </div>
         ) : employees.length > 0 ? (
           <>
@@ -179,48 +234,50 @@ const Employees = () => {
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                       Employee
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                       Employee ID
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                       Department
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                       Position
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                       Date Hired
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                       Actions
                     </th>
                   </tr>
                 </thead>
+
                 <tbody className="divide-y divide-gray-100">
                   {employees.map((employee) => (
-                    <tr key={employee._id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
+                    <tr key={employee._id} className="transition-colors hover:bg-gray-50">
+                      <td className="whitespace-nowrap px-6 py-4">
                         <Link
                           to={`/employees/view/${employee._id}`}
                           className="flex items-center gap-3"
                         >
                           {employee.profilePhoto ? (
                             <img
-                              src={`http://localhost:5000${employee.profilePhoto}`}
-                              alt={employee.firstName}
-                              className="w-10 h-10 rounded-full object-cover"
+                              src={`${import.meta.env.VITE_API_URL}${employee.profilePhoto}`}
+                              alt={`${employee.firstName} ${employee.lastName}`}
+                              className="h-10 w-10 rounded-full object-cover"
                             />
                           ) : (
-                            <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-800 font-semibold">
-                              {employee.firstName.charAt(0)}
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 font-semibold text-primary-800">
+                              {employee.firstName.charAt(0).toUpperCase()}
                             </div>
                           )}
+
                           <div>
                             <p className="font-medium text-gray-800">
                               {employee.firstName} {employee.lastName}
@@ -229,51 +286,62 @@ const Employees = () => {
                           </div>
                         </Link>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">
                           {employee.employeeId}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-600">
+
+                      <td className="whitespace-nowrap px-6 py-4 text-gray-600">
                         {employee.department}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-600">
+
+                      <td className="whitespace-nowrap px-6 py-4 text-gray-600">
                         {employee.position}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          employee.employmentStatus === 'Regular'
-                            ? 'bg-green-100 text-green-800'
-                            : employee.employmentStatus === 'Probationary'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-blue-100 text-blue-800'
-                        }`}>
+
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <span
+                          className={`rounded-full px-3 py-1 text-sm font-medium ${
+                            employee.employmentStatus === 'Regular'
+                              ? 'bg-green-100 text-green-800'
+                              : employee.employmentStatus === 'Probationary'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-blue-100 text-blue-800'
+                          }`}
+                        >
                           {employee.employmentStatus}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-600">
+
+                      <td className="whitespace-nowrap px-6 py-4 text-gray-600">
                         {formatDate(employee.dateHired)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
+
+                      <td className="whitespace-nowrap px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Link
                             to={`/employees/view/${employee._id}`}
-                            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                            title="View"
+                            className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100"
+                            title="View employee"
                           >
                             <Eye size={18} />
                           </Link>
+
                           <Link
                             to={`/employees/edit/${employee._id}`}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="Edit"
+                            className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50"
+                            title="Edit employee"
                           >
                             <Edit size={18} />
                           </Link>
+
                           <button
+                            type="button"
                             onClick={() => openArchiveDialog(employee)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Archive"
+                            className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50"
+                            title="Archive employee"
                           >
                             <Archive size={18} />
                           </button>
@@ -286,27 +354,39 @@ const Employees = () => {
             </div>
 
             {/* Pagination */}
-            <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+            <div className="flex flex-col gap-4 border-t border-gray-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-gray-600">
-                Showing <span className="font-medium">{((currentPage - 1) * 10) + 1}</span> to{' '}
-                <span className="font-medium">{Math.min(currentPage * 10, total)}</span> of{' '}
-                <span className="font-medium">{total}</span> results
+                Showing{' '}
+                <span className="font-medium">
+                  {total === 0 ? 0 : (currentPage - 1) * 10 + 1}
+                </span>{' '}
+                to <span className="font-medium">{Math.min(currentPage * 10, total)}</span>{' '}
+                of <span className="font-medium">{total}</span> results
               </p>
+
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  type="button"
+                  onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
                   disabled={currentPage === 1}
-                  className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="rounded-lg border border-gray-300 p-2 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  title="Previous page"
                 >
                   <ChevronLeft size={20} />
                 </button>
-                <span className="px-4 py-2 bg-primary-800 text-white rounded-lg font-medium">
-                  {currentPage} / {totalPages}
+
+                <span className="rounded-lg bg-primary-800 px-4 py-2 font-medium text-white">
+                  {currentPage} / {Math.max(totalPages, 1)}
                 </span>
+
                 <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  type="button"
+                  onClick={() =>
+                    setCurrentPage((page) => Math.min(page + 1, Math.max(totalPages, 1)))
+                  }
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  className="rounded-lg border border-gray-300 p-2 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  title="Next page"
                 >
                   <ChevronRight size={20} />
                 </button>
@@ -317,12 +397,17 @@ const Employees = () => {
           <EmptyState
             icon={Users}
             title="No employees found"
-            message={search || department ? "Try adjusting your search or filters" : "Get started by adding your first employee"}
+            message={
+              search || department
+                ? 'Try adjusting your search or department filter.'
+                : 'Get started by adding your first employee.'
+            }
             action={
-              !search && !department && (
+              !search &&
+              !department && (
                 <Link
                   to="/employees/add"
-                  className="bg-primary-800 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-900 transition-colors inline-flex items-center gap-2"
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary-800 px-6 py-3 font-medium text-white transition-colors hover:bg-primary-900"
                 >
                   <UserPlus size={20} />
                   Add Employee
@@ -333,10 +418,15 @@ const Employees = () => {
         )}
       </div>
 
-      {/* Confirm Archive Dialog */}
       <ConfirmDialog
         isOpen={confirmDialog.isOpen}
-        onClose={() => setConfirmDialog({ isOpen: false, employeeId: null, employeeName: '' })}
+        onClose={() =>
+          setConfirmDialog({
+            isOpen: false,
+            employeeId: null,
+            employeeName: ''
+          })
+        }
         onConfirm={handleArchive}
         title="Archive Employee"
         message={`Are you sure you want to archive ${confirmDialog.employeeName}? This will move them to archived records.`}
