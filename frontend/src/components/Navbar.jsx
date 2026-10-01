@@ -4,14 +4,12 @@ import { useAuth } from '../context/AuthContext'
 const Navbar = ({ onMenuClick }) => {
   const { user } = useAuth()
 
-  const formatDate = () => {
-    return new Date().toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
+  const currentDate = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
 
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm sm:px-6">
@@ -20,7 +18,7 @@ const Navbar = ({ onMenuClick }) => {
           type="button"
           onClick={onMenuClick}
           className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 lg:hidden"
-          aria-label="Open navigation menu"
+          aria-label="Open sidebar"
         >
           <Menu size={22} />
         </button>
@@ -29,7 +27,10 @@ const Navbar = ({ onMenuClick }) => {
           <h2 className="truncate text-base font-semibold text-gray-800 sm:text-xl">
             Employee Profiling System
           </h2>
-          <p className="hidden text-xs text-gray-500 sm:block">{formatDate()}</p>
+
+          <p className="hidden text-xs text-gray-500 sm:block">
+            {currentDate}
+          </p>
         </div>
       </div>
 

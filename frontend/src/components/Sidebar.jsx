@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -10,9 +9,13 @@ import {
   ChevronRight,
   X
 } from 'lucide-react'
+import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 
-const Sidebar = ({ mobileSidebarOpen = false, setMobileSidebarOpen = () => {} }) => {
+const Sidebar = ({
+  mobileSidebarOpen = false,
+  setMobileSidebarOpen = () => {}
+}) => {
   const [collapsed, setCollapsed] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
@@ -23,29 +26,39 @@ const Sidebar = ({ mobileSidebarOpen = false, setMobileSidebarOpen = () => {} })
   const menuItems = [
     {
       path: '/dashboard',
-      icon: LayoutDashboard,
       label: 'Dashboard',
+      icon: LayoutDashboard,
       visible: true
     },
     {
       path: '/employees',
-      icon: Users,
       label: 'Employees',
+      icon: Users,
       visible: true
     },
     {
       path: '/employees/add',
-      icon: UserPlus,
       label: 'Add Employee',
+      icon: UserPlus,
       visible: isAdmin
     },
     {
       path: '/employees/archived',
-      icon: Archive,
       label: 'Archived Records',
+      icon: Archive,
       visible: isAdmin
     }
   ]
+
+  const closeSidebar = () => {
+    setMobileSidebarOpen(false)
+  }
+
+  const handleLogout = () => {
+    logout()
+    closeSidebar()
+    navigate('/login', { replace: true })
+  }
 
   const isActive = (path) => {
     if (path === '/employees') {
@@ -59,40 +72,35 @@ const Sidebar = ({ mobileSidebarOpen = false, setMobileSidebarOpen = () => {} })
     return location.pathname === path
   }
 
-  const closeMobileSidebar = () => {
-    setMobileSidebarOpen(false)
-  }
-
-  const handleLogout = () => {
-    closeMobileSidebar()
-    logout()
-    navigate('/login', { replace: true })
-  }
-
   return (
     <>
-      {/* Dark overlay for mobile sidebar */}
+      {/* Mobile overlay */}
       {mobileSidebarOpen && (
         <button
           type="button"
-          onClick={closeMobileSidebar}
-          className="fixed inset-0 z-40 bg-gray-900/50 lg:hidden"
+          onClick={closeSidebar}
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
           aria-label="Close sidebar"
         />
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-primary-800 text-white transition-all duration-300 lg:static lg:z-auto lg:translate-x-0 ${
-          collapsed ? 'w-20' : 'w-64'
-        } ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={[
+          'fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-primary-800 text-white',
+          'transition-transform duration-300',
+          'lg:static lg:translate-x-0',
+          mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full',
+          collapsed ? 'lg:w-20' : 'lg:w-64',
+          'w-64'
+        ].join(' ')}
       >
-        {/* Top Logo */}
+        {/* Header */}
         <div className="flex h-16 shrink-0 items-center justify-between border-b border-primary-700 px-4">
           {!collapsed && (
             <Link
               to="/dashboard"
-              onClick={closeMobileSidebar}
-              className="truncate text-lg font-bold"
+              onClick={closeSidebar}
+              className="text-lg font-bold"
             >
               HR Admin
             </Link>
@@ -102,66 +110,78 @@ const Sidebar = ({ mobileSidebarOpen = false, setMobileSidebarOpen = () => {} })
             <button
               type="button"
               onClick={() => setCollapsed((value) => !value)}
-              className="hidden rounded p-1 transition-colors hover:bg-primary-700 lg:inline-flex"
+              className="hidden rounded-lg p-2 transition-colors hover:bg-primary-700 lg:block"
               title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
-              {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+              {collapsed ? (
+                <ChevronRight size={20} />
+              ) : (
+                <ChevronLeft size={20} />
+              )}
             </button>
 
             <button
               type="button"
-              onClick={closeMobileSidebar}
-              className="rounded p-1 transition-colors hover:bg-primary-700 lg:hidden"
+              onClick={closeSidebar}
+              className="rounded-lg p-2 transition-colors hover:bg-primary-700 lg:hidden"
               aria-label="Close sidebar"
             >
-              <X size={22} />
+              <X size={20} />
             </button>
           </div>
         </div>
 
-        {/* Scrollable navigation area */}
-        <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto py-4">
-          {menuItems
-            .filter((item) => item.visible)
-            .map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={closeMobileSidebar}
-                title={collapsed ? item.label : undefined}
-                className={`mx-2 flex items-center rounded-lg px-4 py-3 transition-colors ${
-                  isActive(item.path)
-                    ? 'bg-primary-600 text-white'
-                    : 'text-gray-300 hover:bg-primary-700 hover:text-white'
-                }`}
-              >
-                <item.icon size={20} className="shrink-0" />
+        {/* Menu */}
+        <nav className="min-h-0 flex-1 overflow-y-auto py-4">
+          <div className="space-y-1">
+            {menuItems
+              .filter((item) => item.visible)
+              .map((item) => {
+                const Icon = item.icon
 
-                {!collapsed && (
-                  <span className="ml-3 truncate">{item.label}</span>
-                )}
-              </Link>
-            ))}
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={closeSidebar}
+                    title={collapsed ? item.label : undefined}
+                    className={[
+                      'mx-2 flex items-center rounded-lg px-4 py-3 transition-colors',
+                      isActive(item.path)
+                        ? 'bg-primary-600 text-white'
+                        : 'text-gray-300 hover:bg-primary-700 hover:text-white',
+                      collapsed ? 'justify-center' : ''
+                    ].join(' ')}
+                  >
+                    <Icon size={21} className="shrink-0" />
+
+                    {!collapsed && (
+                      <span className="ml-3 truncate">{item.label}</span>
+                    )}
+                  </Link>
+                )
+              })}
+          </div>
         </nav>
 
-        {/* Bottom: logged-in user */}
+        {/* User information */}
         {user && (
-          <div className="shrink-0 border-t border-primary-700 px-3 py-3">
+          <div className="shrink-0 border-t border-primary-700 p-3">
             <div
-              className={`flex items-center ${
+              className={[
+                'flex items-center',
                 collapsed ? 'justify-center' : 'gap-3'
-              }`}
-              title={collapsed ? user.name : undefined}
+              ].join(' ')}
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-600 font-semibold">
                 {user.name?.charAt(0).toUpperCase() || 'U'}
               </div>
 
               {!collapsed && (
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{user.name}</p>
                   <p className="text-xs capitalize text-gray-400">
-                    {user.role || 'employee'}
+                    {user.role}
                   </p>
                 </div>
               )}
@@ -169,17 +189,21 @@ const Sidebar = ({ mobileSidebarOpen = false, setMobileSidebarOpen = () => {} })
           </div>
         )}
 
-        {/* Bottom: always-visible logout */}
+        {/* Logout */}
         <div className="shrink-0 border-t border-primary-700 p-3">
           <button
             type="button"
             onClick={handleLogout}
             title={collapsed ? 'Logout' : undefined}
-            className={`flex w-full items-center rounded-lg px-4 py-3 font-medium text-gray-200 transition-colors hover:bg-red-600 hover:text-white ${
+            className={[
+              'flex w-full items-center rounded-lg px-4 py-3',
+              'font-medium text-gray-200 transition-colors',
+              'hover:bg-red-600 hover:text-white',
               collapsed ? 'justify-center' : 'gap-3'
-            }`}
+            ].join(' ')}
           >
-            <LogOut size={20} className="shrink-0" />
+            <LogOut size={21} className="shrink-0" />
+
             {!collapsed && <span>Logout</span>}
           </button>
         </div>
