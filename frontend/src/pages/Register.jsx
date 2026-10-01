@@ -7,25 +7,26 @@ import { toast } from 'react-toastify'
 const Register = () => {
   const navigate = useNavigate()
   const { register } = useAuth()
+
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    role: 'employee'
+    confirmPassword: ''
   })
 
-  const handleChange = (e) => {
+  const handleChange = (event) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [event.target.name]: event.target.value
     })
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = async (event) => {
+    event.preventDefault()
 
     if (formData.password !== formData.confirmPassword) {
       toast.error('Passwords do not match')
@@ -40,48 +41,69 @@ const Register = () => {
     setLoading(true)
 
     try {
-      await register(formData.name, formData.email, formData.password, formData.role)
-      toast.success('Registration successful!')
+      await register(
+        formData.name.trim(),
+        formData.email.trim(),
+        formData.password,
+        'employee'
+      )
+
+      toast.success('Account created successfully!')
       navigate('/dashboard')
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Registration failed. Please try again.')
+      toast.error(
+        error.response?.data?.message ||
+          'Registration failed. Please try again.'
+      )
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-800 to-primary-900 flex items-center justify-center px-4 py-8">
-      <div className="max-w-md w-full">
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-800 to-primary-900 px-4 py-8">
+      <div className="w-full max-w-md">
+        <div className="rounded-2xl bg-white p-8 shadow-2xl">
           {/* Logo */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
+          <div className="mb-8 text-center">
+            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary-100">
               <UserPlus size={32} className="text-primary-800" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-800">Create Account</h1>
-            <p className="text-gray-600 mt-2">Join the Employee Profiling System</p>
+
+            <h1 className="text-2xl font-bold text-gray-800">
+              Create Account
+            </h1>
+            <p className="mt-2 text-gray-600">
+              Create an employee account for the system
+            </p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Name */}
+            {/* Full name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="name"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Full Name
               </label>
+
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                   <User size={20} className="text-gray-400" />
                 </div>
+
                 <input
+                  id="name"
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-800 focus:border-transparent transition-all outline-none"
+                  minLength="2"
+                  autoComplete="name"
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-primary-800"
                   placeholder="John Doe"
                 />
               </div>
@@ -89,20 +111,27 @@ const Register = () => {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Email Address
               </label>
+
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                   <Mail size={20} className="text-gray-400" />
                 </div>
+
                 <input
+                  id="email"
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-800 focus:border-transparent transition-all outline-none"
+                  autoComplete="email"
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-primary-800"
                   placeholder="you@company.com"
                 />
               </div>
@@ -110,26 +139,36 @@ const Register = () => {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
+
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                   <Lock size={20} className="text-gray-400" />
                 </div>
+
                 <input
+                  id="password"
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-800 focus:border-transparent transition-all outline-none"
-                  placeholder="••••••••"
+                  minLength="6"
+                  autoComplete="new-password"
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-12 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-primary-800"
+                  placeholder="At least 6 characters"
                 />
+
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword((value) => !value)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
                     <EyeOff size={20} className="text-gray-400 hover:text-gray-600" />
@@ -140,64 +179,63 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Confirm Password */}
+            {/* Confirm password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="confirmPassword"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Confirm Password
               </label>
+
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                   <Lock size={20} className="text-gray-400" />
                 </div>
+
                 <input
+                  id="confirmPassword"
                   type={showPassword ? 'text' : 'password'}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-800 focus:border-transparent transition-all outline-none"
-                  placeholder="••••••••"
+                  minLength="6"
+                  autoComplete="new-password"
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-primary-800"
+                  placeholder="Repeat your password"
                 />
               </div>
             </div>
 
-            {/* Role */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Account Type
-              </label>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-800 focus:border-transparent transition-all outline-none bg-white"
-              >
-                <option value="employee">Employee</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
+            <p className="rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-800">
+              New accounts are created as employee accounts. Administrator accounts
+              are created only by the system administrator.
+            </p>
 
             {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary-800 text-white py-3 rounded-lg font-medium hover:bg-primary-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-800 py-3 font-medium text-white transition-colors hover:bg-primary-900 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   Creating account...
                 </>
               ) : (
-                'Create Account'
+                'Create Employee Account'
               )}
             </button>
           </form>
 
-          {/* Login Link */}
-          <p className="text-center text-gray-600 mt-6">
+          <p className="mt-6 text-center text-gray-600">
             Already have an account?{' '}
-            <Link to="/login" className="text-primary-800 font-medium hover:underline">
+            <Link
+              to="/login"
+              className="font-medium text-primary-800 hover:underline"
+            >
               Sign in here
             </Link>
           </p>
