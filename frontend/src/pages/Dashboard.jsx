@@ -9,7 +9,7 @@ import {
   Building2,
   Briefcase
 } from 'lucide-react'
-import axios from 'axios'
+import axios from '../utils/axios'
 import StatCard from '../components/StatCard'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 

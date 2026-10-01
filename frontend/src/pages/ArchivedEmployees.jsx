@@ -10,7 +10,7 @@ import {
   ChevronRight,
   Users
 } from 'lucide-react'
-import axios from 'axios'
+import axios from '../utils/axios'
 import { toast } from 'react-toastify'
 import EmptyState from '../components/EmptyState'
 
