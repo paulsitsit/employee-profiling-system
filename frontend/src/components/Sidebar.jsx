@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -9,7 +10,6 @@ import {
   ChevronRight,
   X
 } from 'lucide-react'
-import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 
 const Sidebar = ({
@@ -86,12 +86,11 @@ const Sidebar = ({
 
       <aside
         className={[
-          'fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-primary-800 text-white',
+          'fixed inset-y-0 left-0 z-50 flex h-screen w-64 flex-col',
+          'bg-primary-800 text-white shadow-xl',
           'transition-transform duration-300',
-          'lg:static lg:translate-x-0',
-          mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full',
-          collapsed ? 'lg:w-20' : 'lg:w-64',
-          'w-64'
+          'lg:translate-x-0',
+          mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         ].join(' ')}
       >
         {/* Header */}
@@ -100,7 +99,7 @@ const Sidebar = ({
             <Link
               to="/dashboard"
               onClick={closeSidebar}
-              className="text-lg font-bold"
+              className="truncate text-lg font-bold"
             >
               HR Admin
             </Link>
@@ -110,7 +109,7 @@ const Sidebar = ({
             <button
               type="button"
               onClick={() => setCollapsed((value) => !value)}
-              className="hidden rounded-lg p-2 transition-colors hover:bg-primary-700 lg:block"
+              className="hidden rounded-lg p-2 transition-colors hover:bg-primary-700 lg:inline-flex"
               title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               {collapsed ? (
@@ -131,7 +130,7 @@ const Sidebar = ({
           </div>
         </div>
 
-        {/* Menu */}
+        {/* Scrollable navigation */}
         <nav className="min-h-0 flex-1 overflow-y-auto py-4">
           <div className="space-y-1">
             {menuItems
@@ -164,7 +163,7 @@ const Sidebar = ({
           </div>
         </nav>
 
-        {/* User information */}
+        {/* User profile */}
         {user && (
           <div className="shrink-0 border-t border-primary-700 p-3">
             <div
@@ -181,7 +180,7 @@ const Sidebar = ({
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{user.name}</p>
                   <p className="text-xs capitalize text-gray-400">
-                    {user.role}
+                    {user.role || 'employee'}
                   </p>
                 </div>
               )}
@@ -189,7 +188,7 @@ const Sidebar = ({
           </div>
         )}
 
-        {/* Logout */}
+        {/* Persistent logout */}
         <div className="shrink-0 border-t border-primary-700 p-3">
           <button
             type="button"
@@ -203,7 +202,6 @@ const Sidebar = ({
             ].join(' ')}
           >
             <LogOut size={21} className="shrink-0" />
-
             {!collapsed && <span>Logout</span>}
           </button>
         </div>

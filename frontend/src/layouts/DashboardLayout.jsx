@@ -7,18 +7,17 @@ const DashboardLayout = () => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100">
       <Sidebar
         mobileSidebarOpen={mobileSidebarOpen}
         setMobileSidebarOpen={setMobileSidebarOpen}
       />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Navbar
-          onMenuClick={() => setMobileSidebarOpen(true)}
-        />
+      {/* Offset content on desktop because the sidebar is fixed and 16rem / w-64 wide */}
+      <div className="min-h-screen lg:ml-64">
+        <Navbar onMenuClick={() => setMobileSidebarOpen(true)} />
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <main className="p-4 sm:p-6">
           <Outlet />
         </main>
       </div>
