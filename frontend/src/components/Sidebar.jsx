@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
   Users,
@@ -12,9 +12,10 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
-const Sidebar = ({ mobileSidebarOpen, setMobileSidebarOpen }) => {
+const Sidebar = ({ mobileSidebarOpen = false, setMobileSidebarOpen = () => {} }) => {
   const [collapsed, setCollapsed] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
   const { user, logout } = useAuth()
 
   const isAdmin = user?.role === 'admin'
@@ -46,8 +47,6 @@ const Sidebar = ({ mobileSidebarOpen, setMobileSidebarOpen }) => {
     }
   ]
 
-  const visibleMenuItems = menuItems.filter((item) => item.visible)
-
   const isActive = (path) => {
     if (path === '/employees') {
       return (
@@ -67,27 +66,28 @@ const Sidebar = ({ mobileSidebarOpen, setMobileSidebarOpen }) => {
   const handleLogout = () => {
     closeMobileSidebar()
     logout()
+    navigate('/login', { replace: true })
   }
 
   return (
     <>
-      {/* Mobile backdrop */}
+      {/* Dark overlay for mobile sidebar */}
       {mobileSidebarOpen && (
         <button
           type="button"
           onClick={closeMobileSidebar}
           className="fixed inset-0 z-40 bg-gray-900/50 lg:hidden"
-          aria-label="Close navigation menu"
+          aria-label="Close sidebar"
         />
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-primary-800 text-white transition-transform duration-300 lg:static lg:z-auto lg:translate-x-0 ${
-          mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } ${collapsed ? 'lg:w-20' : 'lg:w-64'}`}
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-primary-800 text-white transition-all duration-300 lg:static lg:z-auto lg:translate-x-0 ${
+          collapsed ? 'w-20' : 'w-64'
+        } ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        {/* Brand */}
-        <div className="flex h-16 items-center justify-between border-b border-primary-700 px-4">
+        {/* Top Logo */}
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-primary-700 px-4">
           {!collapsed && (
             <Link
               to="/dashboard"
@@ -101,7 +101,7 @@ const Sidebar = ({ mobileSidebarOpen, setMobileSidebarOpen }) => {
           <div className="flex items-center gap-1">
             <button
               type="button"
-              onClick={() => setCollapsed(!collapsed)}
+              onClick={() => setCollapsed((value) => !value)}
               className="hidden rounded p-1 transition-colors hover:bg-primary-700 lg:inline-flex"
               title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
@@ -112,59 +112,74 @@ const Sidebar = ({ mobileSidebarOpen, setMobileSidebarOpen }) => {
               type="button"
               onClick={closeMobileSidebar}
               className="rounded p-1 transition-colors hover:bg-primary-700 lg:hidden"
-              aria-label="Close navigation menu"
+              aria-label="Close sidebar"
             >
               <X size={22} />
             </button>
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 space-y-1 overflow-y-auto py-4">
-          {visibleMenuItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={closeMobileSidebar}
-              title={collapsed ? item.label : undefined}
-              className={`mx-2 flex items-center rounded-lg px-4 py-3 transition-colors ${
-                isActive(item.path)
-                  ? 'bg-primary-600 text-white'
-                  : 'text-gray-300 hover:bg-primary-700 hover:text-white'
-              }`}
-            >
-              <item.icon size={20} className="shrink-0" />
+        {/* Scrollable navigation area */}
+        <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto py-4">
+          {menuItems
+            .filter((item) => item.visible)
+            .map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={closeMobileSidebar}
+                title={collapsed ? item.label : undefined}
+                className={`mx-2 flex items-center rounded-lg px-4 py-3 transition-colors ${
+                  isActive(item.path)
+                    ? 'bg-primary-600 text-white'
+                    : 'text-gray-300 hover:bg-primary-700 hover:text-white'
+                }`}
+              >
+                <item.icon size={20} className="shrink-0" />
 
-              {!collapsed && <span className="ml-3 truncate">{item.label}</span>}
-            </Link>
-          ))}
+                {!collapsed && (
+                  <span className="ml-3 truncate">{item.label}</span>
+                )}
+              </Link>
+            ))}
         </nav>
 
-        {/* Current user */}
-        {user && !collapsed && (
-          <div className="border-t border-primary-700 px-4 py-3">
-            <div className="flex items-center gap-3">
+        {/* Bottom: logged-in user */}
+        {user && (
+          <div className="shrink-0 border-t border-primary-700 px-3 py-3">
+            <div
+              className={`flex items-center ${
+                collapsed ? 'justify-center' : 'gap-3'
+              }`}
+              title={collapsed ? user.name : undefined}
+            >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-600 font-semibold">
                 {user.name?.charAt(0).toUpperCase() || 'U'}
               </div>
 
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{user.name}</p>
-                <p className="text-xs capitalize text-gray-400">{user.role}</p>
-              </div>
+              {!collapsed && (
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{user.name}</p>
+                  <p className="text-xs capitalize text-gray-400">
+                    {user.role || 'employee'}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* Logout */}
-        <div className="border-t border-primary-700 p-2">
+        {/* Bottom: always-visible logout */}
+        <div className="shrink-0 border-t border-primary-700 p-3">
           <button
             type="button"
             onClick={handleLogout}
             title={collapsed ? 'Logout' : undefined}
-            className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-gray-300 transition-colors hover:bg-primary-700 hover:text-white"
+            className={`flex w-full items-center rounded-lg px-4 py-3 font-medium text-gray-200 transition-colors hover:bg-red-600 hover:text-white ${
+              collapsed ? 'justify-center' : 'gap-3'
+            }`}
           >
-            <LogOut size={20} />
+            <LogOut size={20} className="shrink-0" />
             {!collapsed && <span>Logout</span>}
           </button>
         </div>
