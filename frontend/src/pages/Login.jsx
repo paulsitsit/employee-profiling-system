@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { toast } from 'react-toastify'
+import MagicRings from '../components/MagicRings'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -43,8 +44,36 @@ const Login = () => {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-800 to-primary-900 px-4">
-      <div className="w-full max-w-md">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-primary-800 to-primary-900 px-4">
+      {/* Animated background: it cannot block login controls */}
+      <div className="pointer-events-none absolute inset-0 opacity-30 sm:opacity-45">
+        <MagicRings
+          color="#48df48"
+          colorTwo="#35cdef"
+          ringCount={6}
+          speed={0.7}
+          attenuation={10}
+          lineThickness={2}
+          baseRadius={0.35}
+          radiusStep={0.1}
+          scaleRate={0.1}
+          opacity={1}
+          blur={0}
+          noiseAmount={0.05}
+          rotation={0}
+          ringGap={1.5}
+          fadeIn={0.7}
+          fadeOut={0.5}
+          followMouse={false}
+          mouseInfluence={0.2}
+          hoverScale={1.2}
+          parallax={0.05}
+          clickBurst={false}
+        />
+      </div>
+
+      {/* Login form remains above the background */}
+      <div className="relative z-10 w-full max-w-md">
         <div className="rounded-2xl bg-white p-8 shadow-2xl">
           {/* Application logo and heading */}
           <div className="mb-8 text-center">
@@ -67,9 +96,8 @@ const Login = () => {
             </p>
           </div>
 
-          {/* Form */}
+          {/* Login form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -97,7 +125,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -144,7 +171,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
@@ -169,7 +195,7 @@ const Login = () => {
           </div>
         </div>
 
-        <p className="mt-6 text-center text-sm text-gray-300">
+        <p className="mt-6 text-center text-sm text-gray-200">
           © 2026 Employee Profiling Management System
         </p>
       </div>
