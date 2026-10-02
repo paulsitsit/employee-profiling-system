@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogIn, Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react'
+import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { toast } from 'react-toastify'
 
@@ -34,6 +34,7 @@ const Login = () => {
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
+          error.message ||
           'Login failed. Please check your credentials.'
       )
     } finally {
@@ -45,10 +46,14 @@ const Login = () => {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-800 to-primary-900 px-4">
       <div className="w-full max-w-md">
         <div className="rounded-2xl bg-white p-8 shadow-2xl">
-          {/* Logo */}
+          {/* Application logo and heading */}
           <div className="mb-8 text-center">
-            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary-100">
-              <ShieldCheck size={32} className="text-primary-800" />
+            <div className="mb-5 flex justify-center">
+              <img
+                src="/logo.jpg"
+                alt="Employee Profiling System"
+                className="h-28 w-28 rounded-2xl object-cover shadow-lg"
+              />
             </div>
 
             <h1 className="text-2xl font-bold text-gray-800">
