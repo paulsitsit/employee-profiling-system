@@ -49,11 +49,11 @@ const Login = () => {
           {/* Application logo and heading */}
           <div className="mb-8 text-center">
             <div className="mb-5 flex justify-center">
-              <div className="flex h-36 w-36 items-center justify-center overflow-hidden rounded-2xl bg-gray-50 p-2 shadow-lg">
+              <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-lg">
                 <img
                   src="/logo.jpg"
                   alt="Employee Profiling System"
-                  className="h-full w-full object-contain"
+                  className="login-logo-crop h-full w-full object-cover"
                 />
               </div>
             </div>

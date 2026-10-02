@@ -39,4 +39,14 @@ body {
   .scrollbar-thin {
     scrollbar-width: thin;
   }
+
+  /*
+    Login logo crop:
+    - Hides white empty edges built into logo.jpg
+    - Zooms the image while the parent wrapper clips it
+  */
+  .login-logo-crop {
+    transform: scale(1.42);
+    transform-origin: center;
+  }
 }
