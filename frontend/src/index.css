@@ -41,9 +41,8 @@ body {
   }
 
   /*
-    Login logo crop:
-    - Hides white empty edges built into logo.jpg
-    - Zooms the image while the parent wrapper clips it
+    Enlarges logo.jpg within its circular, overflow-hidden parent.
+    This clips excess white margin built into the original image.
   */
   .login-logo-crop {
     transform: scale(1.42);
