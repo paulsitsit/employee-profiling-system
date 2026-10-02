@@ -41,11 +41,12 @@ body {
   }
 
   /*
-    Enlarges logo.jpg within its circular, overflow-hidden parent.
-    This clips excess white margin built into the original image.
+    The circular parent in Login.jsx clips the image.
+    A small scale removes a little of the built-in white padding
+    without cutting off the Employee Profiling text.
   */
   .login-logo-crop {
-    transform: scale(1.42);
+    transform: scale(1.1);
     transform-origin: center;
   }
 }
